@@ -1,6 +1,6 @@
 {
   "name": "au-redux",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "description": "A redux aurelia integration.",
   "main": "dist/index",
   "repository": {

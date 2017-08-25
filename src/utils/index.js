@@ -2,5 +2,5 @@
  * Created by istrauss on 8/25/2017.
  */
 
-export * from './reducer-helper';
-export * from './action-type-helper';
+export * from './reducers';
+export * from './action-types';

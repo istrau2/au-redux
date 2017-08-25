@@ -2,26 +2,26 @@
 
 exports.__esModule = true;
 
-var _reducerHelper = require('./reducer-helper');
+var _reducers = require('./reducers');
 
-Object.keys(_reducerHelper).forEach(function (key) {
+Object.keys(_reducers).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   Object.defineProperty(exports, key, {
     enumerable: true,
     get: function get() {
-      return _reducerHelper[key];
+      return _reducers[key];
     }
   });
 });
 
-var _actionTypeHelper = require('./action-type-helper');
+var _actionTypes = require('./action-types');
 
-Object.keys(_actionTypeHelper).forEach(function (key) {
+Object.keys(_actionTypes).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   Object.defineProperty(exports, key, {
     enumerable: true,
     get: function get() {
-      return _actionTypeHelper[key];
+      return _actionTypes[key];
     }
   });
 });
