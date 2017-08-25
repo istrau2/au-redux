@@ -1,0 +1,22 @@
+{
+    plugins: [
+        "transform-object-rest-spread"
+    ],
+    presets: [
+        [
+            "env",
+            {
+                targets: {
+                    browsers: [
+                        "last 2 versions",
+                        "not ie <= 11"
+                    ],
+                    uglify: false
+                },
+                loose: true,
+                modules: "commonjs",
+                useBuiltIns: "usage"
+            }
+        ]
+    ]
+}
