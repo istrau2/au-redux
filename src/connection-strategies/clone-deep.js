@@ -4,6 +4,6 @@
 
 import _cloneDeep from 'lodash.clonedeep';
 
-export function clone(object, property, newValue) {
+export function cloneDeep(object, property, newValue) {
     object[property] = _cloneDeep(newValue);
 }
