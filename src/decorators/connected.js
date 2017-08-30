@@ -39,10 +39,16 @@ export function connected(path, options) {
         let unsubscribeFromStore;
 
         target.bind = function (...args) {
-            unsubscribeFromStore = store.subscribe(() => {
+            const assignFromStore = () => {
                 options.strategy(this, name, _get(store.getState(), path));
-            });
-            options.strategy(this, name, _get(store.getState(), path));
+
+                if (target[name + 'Changed']) {
+                    target[name + 'Changed'].call(this);
+                }
+            };
+
+            unsubscribeFromStore = store.subscribe(assignFromStore);
+            assignFromStore();
 
             if (bind) {
                 bind.apply(this, args);
