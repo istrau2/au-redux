@@ -34,11 +34,9 @@ export function connected(path, options) {
         }
 
         const store = Container.instance.get(Store);
-        const bind = target.bind;
-        const unbind = target.bind;
         let unsubscribeFromStore;
 
-        target.bind = function (...args) {
+        target.connect = function () {
             const assignFromStore = () => {
                 options.strategy(this, name, _get(store.getState(), path));
 
@@ -49,18 +47,10 @@ export function connected(path, options) {
 
             unsubscribeFromStore = store.subscribe(assignFromStore);
             assignFromStore();
-
-            if (bind) {
-                bind.apply(this, args);
-            }
         };
 
-        target.unbind = function(...args) {
+        target.disconnect = function() {
             unsubscribeFromStore();
-
-            if (unbind) {
-                unbind.apply(this, args);
-            }
         }
     }
 }
