@@ -4,6 +4,6 @@
 
 import _cloneDeep from 'lodash.merge';
 
-export function merge(object, property, newValue) {
-    _merge(object[property], newValue);
+export function merge(newValue, oldValue) {
+    return oldValue ? _merge(oldValue, newValue) : newValue;
 }

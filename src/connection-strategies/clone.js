@@ -4,6 +4,6 @@
 
 import _clone from 'lodash.clone';
 
-export function clone(object, property, newValue) {
-    object[property] = _clone(newValue);
+export function clone(newValue, oldValue) {
+    _clone(newValue);
 }

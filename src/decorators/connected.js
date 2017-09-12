@@ -2,55 +2,73 @@
  * Created by istrauss on 8/25/2017.
  */
 
-import _get from 'lodash.get';
-import {Container} from 'aurelia-dependency-injection';
-import {Store} from '../store';
-import {direct} from '../connection-strategies/index';
-
-const defaultOptions = {
-    strategy: direct
-};
+import {ConnectedObserver} from './connected-observer';
 
 /**
  * The connected decorator, connects the property to the store by subscribing it to the store for changes.
  * @param path - The path by which to get the desired value from the store.
- * @param [options]
- * @param [options.strategy=direct] - The connection strategy to use when after retrieval from store. By default the direct strategy is used.
- *                                    A strategy should be a function of the following form:
- *                                    (object, property, newValue) => {
- *                                          ensures the newValue is somehow provided to object. The old value can simply be obtained from object[property]
- *                                    }
+ * @param [options] see description of options on the ConnectedObserver
  * @returns {Function}
  */
 export function connected(path, options) {
-    options = {
-        ...options,
-        ...defaultOptions
-    };
 
     return function(target, name, descriptor) {
         if (!path) {
-            throw new Error('in order for ' + name + ' to be connected, a path must be specificed.');
+            throw new Error('in order for ' + name + ' to be connected, a path must be specified.');
         }
 
-        const store = Container.instance.get(Store);
-        let unsubscribeFromStore;
+        delete descriptor.initializer;
+        delete descriptor.writable;
+        delete descriptor.value;
 
-        target.connect = function () {
-            const assignFromStore = () => {
-                options.strategy(this, name, _get(store.getState(), path));
+        descriptor.configurable = true;
+        descriptor.enumerable = true;
 
-                if (target[name + 'Changed']) {
-                    target[name + 'Changed'].call(this);
-                }
-            };
-
-            unsubscribeFromStore = store.subscribe(assignFromStore);
-            assignFromStore();
+        descriptor.get = function() {
+            return this._connected_observers && this._connected_observers[name] ?
+                this._connected_observers[name].getValue() :
+                undefined;
         };
 
-        target.disconnect = function() {
-            unsubscribeFromStore();
+        descriptor.get.getObserver = function getObserver(obj) {
+            return this._connected_observers && this._connected_observers[name] ?
+                this._connected_observers[name] :
+                new ConnectedObserver(name, obj, path, options);
+        };
+
+        descriptor.set = descriptor.set || function() {
+            throw new Error('You are not allowed to set connected properties directly. Try dispatching an action against the store instead (perhaps from a virtual setter).');
+        };
+
+
+        // As long as ownSubscription stays subscribed to the ConnectedObserver, the observer will continue listening for changes.
+        function ownSubscription(newValue, oldValue) {
+            if (this[name + 'Changed']) {
+                this[name + 'Changed'](newValue, oldValue);
+            }
         }
+
+        const originalBind = target.bind;
+        const originalUnbind = target.unbind;
+
+        target.bind = function bind(...rest) {
+            descriptor.get.getObserver(this)
+                .subscribe(this, ownSubscription);
+
+            if (originalBind) {
+                originalBind.apply(this, rest);
+            }
+        };
+
+        target.unbind = function unbind(...rest) {
+            descriptor.get.getObserver(this)
+                .unsubscribe(this, ownSubscription);
+
+            if (originalUnbind) {
+                originalUnbind.apply(this, rest);
+            }
+        };
+
+        return descriptor;
     }
 }
