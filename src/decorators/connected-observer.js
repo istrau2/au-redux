@@ -2,7 +2,7 @@
  * Created by istrauss on 9/11/2017.
  */
 
-import _get from 'lodash.get';
+import _get from 'lodash/get';
 import {TaskQueue, Container, subscriberCollection} from 'aurelia-framework';
 import {Store} from '../store';
 import {direct} from '../connection-strategies/index';

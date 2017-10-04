@@ -8,7 +8,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 exports.connected = connected;
 
-var _lodash = require('lodash.get');
+var _lodash = require('lodash/get');
 
 var _lodash2 = _interopRequireDefault(_lodash);
 

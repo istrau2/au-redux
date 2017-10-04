@@ -3,7 +3,7 @@
 exports.__esModule = true;
 exports.merge = merge;
 
-var _lodash = require('lodash.merge');
+var _lodash = require('lodash/merge');
 
 var _lodash2 = _interopRequireDefault(_lodash);
 

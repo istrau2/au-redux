@@ -3,7 +3,7 @@
 exports.__esModule = true;
 exports.clone = clone;
 
-var _lodash = require('lodash.clone');
+var _lodash = require('lodash/clone');
 
 var _lodash2 = _interopRequireDefault(_lodash);
 
