@@ -40,7 +40,7 @@ export class ConnectedObserver {
     }
 
     getValue() {
-        return this.value;
+        return this.storeValue;
     }
 
     setValue(newValue) {
@@ -61,11 +61,12 @@ export class ConnectedObserver {
         const storeValue = _get(this.store.getState(), this.storePath);
 
         if (this.storeValue !== storeValue) {
+            this.previousStoreValue = this.storeValue;
             this.storeValue = storeValue;
-            this.oldValue = this.value;
-            this.value = this.options.strategy(this.storeValue, this.value, this.obj);
 
-            this.callSubscribers(this.value, this.oldValue);
+            this.taskQueue.queueMicroTask(() => {
+                this.callSubscribers(this.storeValue, this.previousStoreValue);
+            });
         }
     }
 
@@ -81,7 +82,7 @@ export class ConnectedObserver {
 
         if (result && !this.hasSubscribers()) {
             this.disconnect();
-            this.oldValue = undefined;
+            this.previousStoreValue = undefined;
         }
 
         return result;
