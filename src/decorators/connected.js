@@ -25,35 +25,37 @@ export function connected(path, options) {
         descriptor.enumerable = true;
 
         descriptor.get = function() {
-            return this._connected_observers && this._connected_observers[name] ?
-                this._connected_observers[name].getValue() :
+            return this._au_redux_observers && this._au_redux_observers[name] ?
+                this._au_redux_observers[name].getValue() :
                 undefined;
         };
 
         descriptor.get.getObserver = function getObserver(obj) {
-            return this._connected_observers && this._connected_observers[name] ?
-                this._connected_observers[name] :
-                new ConnectedObserver(name, obj, path, options);
+            if (!obj._au_redux_observers) {
+                obj._au_redux_observers = {};
+            }
+
+            if (!obj._au_redux_observers[name]) {
+                obj._au_redux_observers[name] = new ConnectedObserver(name, obj, path, options);
+            }
+
+            return obj._au_redux_observers[name];
         };
 
         descriptor.set = descriptor.set || function() {
             throw new Error('You are not allowed to set connected properties directly. Try dispatching an action against the store instead (perhaps from a virtual setter).');
         };
 
-
-        // As long as ownSubscription stays subscribed to the ConnectedObserver, the observer will continue listening for changes.
-        function ownSubscription(newValue, oldValue) {
-            if (this[name + 'Changed']) {
-                this[name + 'Changed'](newValue, oldValue);
-            }
-        }
+        let subscription;
 
         const originalBind = target.bind;
         const originalUnbind = target.unbind;
 
         target.bind = function bind(...rest) {
-            descriptor.get.getObserver(this)
-                .subscribe(this, ownSubscription);
+            subscription = subscriptionFactory(name);
+
+            const result = descriptor.get.getObserver(this)
+                .subscribe(this, subscription);
 
             if (originalBind) {
                 originalBind.apply(this, rest);
@@ -61,8 +63,8 @@ export function connected(path, options) {
         };
 
         target.unbind = function unbind(...rest) {
-            descriptor.get.getObserver(this)
-                .unsubscribe(this, ownSubscription);
+            const result = descriptor.get.getObserver(this)
+                .unsubscribe(this, subscription);
 
             if (originalUnbind) {
                 originalUnbind.apply(this, rest);
@@ -70,5 +72,14 @@ export function connected(path, options) {
         };
 
         return descriptor;
+    }
+}
+
+
+function subscriptionFactory(name) {
+    return function (newValue, oldValue) {
+        if (this[name + 'Changed']) {
+            this[name + 'Changed'](newValue, oldValue);
+        }
     }
 }

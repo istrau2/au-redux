@@ -37,9 +37,6 @@ export class ConnectedObserver {
             ...defaultOptions,
             ...options
         };
-
-        obj._connected_observers = obj._connected_observers || {};
-        obj._connected_observers[property] = this;
     }
 
     getValue() {
@@ -68,14 +65,8 @@ export class ConnectedObserver {
             this.oldValue = this.value;
             this.value = this.options.strategy(this.storeValue, this.value, this.obj);
 
-            this.notifySubscribers();
-        }
-    }
-
-    notifySubscribers() {
-        this.taskQueue.queueMicroTask(() => {
             this.callSubscribers(this.value, this.oldValue);
-        });
+        }
     }
 
     subscribe(context, callable) {
@@ -86,9 +77,13 @@ export class ConnectedObserver {
     }
 
     unsubscribe(context, callable) {
-        if (this.removeSubscriber(context, callable) && !this.hasSubscribers()) {
+        const result = this.removeSubscriber(context, callable);
+
+        if (result && !this.hasSubscribers()) {
             this.disconnect();
             this.oldValue = undefined;
         }
+
+        return result;
     }
 }
