@@ -26,14 +26,11 @@ export function combineReducersProvideRootState(fnsByName) {
 }
 
 export function restrictReducerToNamespace(reducer, namespace) {
-    return function (...rest) {
-        const state = rest[0];
-        const action = rest[1];
-
+    return function (state, action) {
         if (state && action.type.indexOf(namespace) !== 0) {
             return state;
         }
 
-        return reducer(...rest);
+        return reducer(state, action);
     }
 }
