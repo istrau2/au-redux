@@ -5,11 +5,6 @@
 import _get from 'lodash/get';
 import {TaskQueue, Container, subscriberCollection} from 'aurelia-framework';
 import {Store} from '../store';
-import {direct} from '../connection-strategies/index';
-
-const defaultOptions = {
-    strategy: direct
-};
 
 @subscriberCollection()
 export class ConnectedObserver {
@@ -19,24 +14,15 @@ export class ConnectedObserver {
      * @param property - The property (on obj) to connect store changes to.
      * @param obj - The object to connect store changes to.
      * @param storePath - The path (in the store) to get connection changes from.
-     * @param [options]
-     * @param [options.strategy=direct] - The connection strategy to use when after retrieval from store. By default the direct strategy is used.
-     *                                    A strategy should be a function of the following form:
-     *                                    (object, property, newValue) => {
-     *                                          ensures the newValue is somehow provided to object. The old value can simply be obtained from object[property]
-     *                                    }
+
      * @returns {Function}
      */
-    constructor(property, obj, storePath, options = {}) {
+    constructor(property, obj, storePath) {
         this.taskQueue = Container.instance.get(TaskQueue);
         this.store = Container.instance.get(Store);
         this.property = property;
         this.obj = obj;
         this.storePath = storePath;
-        this.options = {
-            ...defaultOptions,
-            ...options
-        };
     }
 
     getValue() {

@@ -3,3 +3,4 @@
  */
 
 export * from './connected';
+export * from './action-creator';
